@@ -328,3 +328,116 @@ func Handle(req []byte) string {
 		return string(responseByte)
 	}
 }
+
+func GetListSlimObject(in GetListFunctionRequest) (GetListClientApiResponse, Response, error) {
+	response := Response{}
+
+	reqObject, err := json.Marshal(in.Request)
+	if err != nil {
+		response.Data = map[string]interface{}{"message": "Error while marshalling request getting list slim object", "error": err.Error()}
+		response.Status = "error"
+		return GetListClientApiResponse{}, response, errors.New("error")
+	}
+
+	if _, ok := in.Request["offset"]; !ok {
+		in.Request["offset"] = 0
+	}
+	if _, ok := in.Request["limit"]; !ok {
+		in.Request["limit"] = 10
+	}
+
+	var getListSlimObject GetListClientApiResponse
+	url := fmt.Sprintf("%s/v1/object-slim/get-list/%s?from-ofs=%t&data=%s&offset=%d&limit=%d", in.BaseUrl, in.TableSlug, in.DisableFaas, string(reqObject), in.Request["offset"], in.Request["limit"])
+	getListSlimResponseInByte, err := DoRequest(url, "GET", nil, in.AppId)
+	if err != nil {
+		response.Data = map[string]interface{}{"message": "Error while getting list slim object", "error": err.Error()}
+		response.Status = "error"
+		return GetListClientApiResponse{}, response, errors.New("error")
+	}
+	// Send("getListSlimObject" + string(getListSlimResponseInByte))
+	err = json.Unmarshal(getListSlimResponseInByte, &getListSlimObject)
+	if err != nil {
+		response.Data = map[string]interface{}{"message": "Error while unmarshalling get list slim object", "error": err.Error()}
+		response.Status = "error"
+		return GetListClientApiResponse{}, response, errors.New("error")
+	}
+	return getListSlimObject, response, nil
+}
+
+func UpdateObject(in FunctionRequest) (ClientApiUpdateResponse, Response, error) {
+	response := Response{
+		Status: "done",
+	}
+
+	var updateObject ClientApiUpdateResponse
+	updateObjectResponseInByte, err := DoRequest(fmt.Sprintf("%s/v1/object/%s?from-ofs=%t", in.BaseUrl, in.TableSlug, in.DisableFaas), "PUT", in.Request, in.AppId)
+	if err != nil {
+		response.Data = map[string]interface{}{"message": "Error while updating object", "error": err.Error()}
+		response.Status = "error"
+		return ClientApiUpdateResponse{}, response, errors.New("error")
+	}
+
+	err = json.Unmarshal(updateObjectResponseInByte, &updateObject)
+	if err != nil {
+		response.Data = map[string]interface{}{"message": "Error while unmarshalling update object", "error": err.Error()}
+		response.Status = "error"
+		return ClientApiUpdateResponse{}, response, errors.New("error")
+	}
+
+	return updateObject, response, nil
+}
+
+func DoRequest(url string, method string, body interface{}, appId string) ([]byte, error) {
+	data, err := json.Marshal(&body)
+	if err != nil {
+		return nil, err
+	}
+	// Send("data" + string(data))
+	client := &http.Client{
+		Timeout: time.Duration(5 * time.Second),
+	}
+
+	request, err := http.NewRequest(method, url, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Add("authorization", "API-KEY")
+	request.Header.Add("X-API-KEY", appId)
+
+	resp, err := client.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	respByte, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return respByte, nil
+}
+
+func Send(text string) {
+	client := &http.Client{}
+	text = logFunctionName + " >>>>> " + time.Now().Format(time.RFC3339) + " >>>>> " + text
+	var botUrl = fmt.Sprintf("https://api.telegram.org/bot"+botToken+"/sendMessage?chat_id="+chatID+"&text=%s", text)
+	request, err := http.NewRequest("GET", botUrl, nil)
+	if err != nil {
+		return
+	}
+	resp, err := client.Do(request)
+	if err != nil {
+		return
+	}
+
+	defer resp.Body.Close()
+}
+
+func ConvertResponse(data []byte) (ResponseStatus, error) {
+	response := ResponseStatus{}
+
+	err := json.Unmarshal(data, &response)
+
+	return response, err
+}
