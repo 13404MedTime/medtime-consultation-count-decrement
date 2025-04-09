@@ -1,0 +1,15 @@
+{
+    "data": {
+        "object_data": {
+            "cleints_id": "962479cb-31d9-47b0-b965-6f3d543f254d",
+            "consultation_type": "бесплатная консультация",
+            "client_name": "aa",
+            "client_surname": "bb",
+            "doctor_id": "ab4baaed-d8db-4e83-8d30-e399b4f70c3b",
+            "ill_id": "1e1cac8a-8ae6-494d-a8f3-c8a9cc9e5119",
+            "ill_name": "A02.0 Сальмонеллезный энтерит",
+            "invite": false,
+            "multi": []
+        }
+    }
+  }

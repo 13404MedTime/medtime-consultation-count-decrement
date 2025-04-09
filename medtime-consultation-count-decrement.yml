@@ -1,0 +1,15 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: https://ofs.u-code.io
+functions:
+  madadio-consultation-count-decrement:
+    lang: go
+    handler: ./madadio-consultation-count-decrement
+    image: gitlab.udevs.io:5050/ucode_functions_group/madadio-consultation-count-decrement/madadio-consultation-count-decrement:latest
+    constraints:
+    - "workload=openfaas-fn"
+    limits:
+      memory: 300Mi
+    requests:
+      memory: 5Mi
