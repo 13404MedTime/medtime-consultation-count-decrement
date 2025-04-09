@@ -162,3 +162,40 @@ type (
 
 	FunctionAssert struct{}
 )
+
+func (f FunctionAssert) GetAsserts() []Asserts {
+	// var appId = os.Getenv("APP_ID")
+	return []Asserts{
+		{
+			Request: NewRequestBody{
+				Data: Data{
+					AppId: "P-JV2nVIRUtgyPO5xRNeYll2mT4F5QG4bS",
+					ObjectData: map[string]interface{}{
+						"cleints_id":        "accd5dcf-c6a9-4b49-a5f8-7474f01dcae6",
+						"consultation_type": "платная консультация",
+					},
+				},
+			},
+			Response: Response{
+				Status: "done",
+			},
+		},
+	}
+}
+
+func (f FunctionAssert) GetBenchmarkRequest() Asserts {
+	// var appId = os.Getenv("APP_ID")
+	return Asserts{
+		Request: NewRequestBody{
+			Data: Data{
+				AppId: "P-JV2nVIRUtgyPO5xRNeYll2mT4F5QG4bS",
+				ObjectData: map[string]interface{}{
+					"cleints_id":        "accd5dcf-c6a9-4b49-a5f8-7474f01dcae6",
+					"consultation_type": "платная консультация",
+				}},
+		},
+		Response: Response{
+			Status: "done",
+		},
+	}
+}
